@@ -8,14 +8,24 @@ class App:
     def __init__(self):
         self.__db_app = newApp()
         self.waiter = Waiter(db)
-        self.__startDb()
+        self.web_hunter = WebHunter(db)
+        self.__db_app.run(5000)
         #instance of webdriver Chrome based
 
-    def __startDb(self):
-        self.__db_app.run(5000)
+    def verifyDB(self):
+        try:
+            topics = self.waiter.getTopics()
 
+        except:
+            self.waiter.setTodayData()
+    
+    def setTodayData(self):
+        self.web_hunter.getTodayData()
+        
+        
     def startFlow(self):
-        self.waiter.beginService()
+        self.verifyDB()
+        self.waiter.startService()
         
     def collectTopicsAndCompaniesFromRanking(self):
 
