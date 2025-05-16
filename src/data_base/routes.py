@@ -1,6 +1,6 @@
 from flask import Blueprint
 
-bp_db = Blueprint(__name__,"bp_db")
+bp_db = Blueprint("bp_db",__name__)
 
 
 @bp_db.route('/')

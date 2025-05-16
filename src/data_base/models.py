@@ -3,7 +3,7 @@ from src.data_base import db
 class TopicModel(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     topic_name = db.Column(db.String(100))
-    topic_companies = db.Column(db.ARRAY(db.Integer), nullable = True)
+    topic_companies = db.Column(db.String(500), nullable = True)
     
     def to_dict(self):
         return {
@@ -11,6 +11,18 @@ class TopicModel(db.Model):
             'topic_name': self.topic_name,
             'topic_companies': self.topic_companies
         }
+    def get_companies(self):
+        if self.topic_name:
+            return [int(id) for id in self.topic_name.split(",")]
+        return []
+    def set_companies(self,ids_list):
+        try:
+            ids_list = [int(id) for id in ids_list]
+        except ValueError:
+            print("Id inteiro must be")
+        self.topic_name = ",".join(map(str, ids_list))
+        
+
 
 class CompanyModel(db.Model):
     __tablename__ = 'company_model'

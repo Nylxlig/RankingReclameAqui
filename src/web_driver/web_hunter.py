@@ -22,24 +22,33 @@ class WebHunter:
         usefull_data = search.find_elements(By.CLASS_NAME,"box-gray")
         self.saveTopicAndCompany(usefull_data)
 
+
+
     def saveTopicAndcompany(self,usefull_data):
-        for item in usefull_data:
+        company_register_in_db =[]
+
+        for topic_info in usefull_data:
             topic_companies = []
-            companies_list = item.find_element(By.TAG_NAME,"ol").find_elements(By.TAG_NAME,"li")
+            companies_list = topic_info.find_element(By.TAG_NAME,"ol").find_elements(By.TAG_NAME,"li")
+            topic_name = topic_info.find_element(By.TAG_NAME,"h2")
             for company_item in companies_list:
                 element = company_item.find_element(By.CSS_SELECTOR, "[ng-switch]").find_element(By.TAG_NAME, "a")
                 link = element.get_attribute("href")
                 name = element.get_attribute("tittle")
-                topic_companies.append(CompanyModel(name,link))
-                new_company_info = CompanyInfoModel()
+                #verifica se já existe uma company no db com esse link
+                existing_company = CompanyModel.query.filter_by(link = link).first()
+                if not existing_company:
+                    new_company = CompanyModel(name = name,link = link)
+                    self.db.session.add(new_company)
+                    self.db.session.flush()
+                    company_id = new_company.id
+                else:
+                    company_id = existing_company.id
+                topic_companies.append(company_id)
 
-            new_topic = TopicModel(item.find_element(By.TAG_NAME,"h2"),companies)
-
+            new_topic = TopicModel(name = name, topic_companies = topic_companies)
             self.db.session.add(new_topic)
-
-    def addCompany(self):
-        try:
-            CompanyModel.query.session.get()
-            pass
-        except:
-            pass
+            self.db.session.commit()   
+    
+    def test(self):
+        return TopicModel.query.all()
